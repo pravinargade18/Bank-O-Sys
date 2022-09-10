@@ -92,9 +92,43 @@ const displayMovements = function(movements) {
         containerMovements.insertAdjacentHTML('afterbegin',html);
         //This method is used to insert the elements inside container it takes two arguments first->where to insert ,second->what to insert
 
-         
     });
 }
-
 displayMovements(account1.movements);
+
+
+const calcDisplayBalance = function (movements) {
+  const balance = movements.reduce((acc, mov) => acc + mov, 0);
+  console.log(balance);
+  labelBalance.textContent = `Rs.${balance}`;
+};
+
+calcDisplayBalance(account1.movements);
+
+const calcDisplaySummary = function (movements) {
+      const income=movements.filter(mov=>mov>0).reduce((acc,mov)=>acc+mov,0);
+      labelSumIn.textContent=`Rs.${income}`;
+
+      const out= movements.filter(mov=>mov<0).reduce((acc,mov)=>acc+mov,0);
+      labelSumOut.textContent=`Rs.${Math.abs(out)}`;
+
+      const interest=movements.map(deposit=>(deposit*1.2/100)).filter(deposit=>deposit>=1).reduce((acc,int)=>acc+int,0)
+      labelSumInterest.textContent=`Rs.${interest}`
+}
+calcDisplaySummary(account1.movements);
+
+const createUsernames= function(accounts) {
+	accounts.forEach(function(acc){
+      acc.username = acc     //creating new property for each account
+        .owner.toLowerCase()
+        .split(' ')
+        .map(word => word[0])
+        .join('');
+	})
+}
+createUsernames(accounts);
+
+
+
+
 

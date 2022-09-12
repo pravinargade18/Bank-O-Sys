@@ -76,11 +76,15 @@ const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 /////////////////////////////////////////////////
 
 
-const displayMovements = function(movements) {
+const displayMovements = function(movements, sort=false) {
 
     containerMovements.innerHTML='';
 
-    movements.forEach(function(mov,i){
+    const movs=sort?movements.slice().sort((a,b)=>a-b):movements;
+    // slice() is used to create copy of the movements array so that it'll not affect on the original array 
+
+
+    movs.forEach(function(mov,i){
       const type=mov>0?'deposit':'withdrawal';
 
         const html = 
@@ -111,6 +115,8 @@ const calcDisplaySummary = function (acc) {
       const interest=acc.movements.map(deposit=>(deposit*acc.interestRate)/100).filter(deposit=>deposit>=1).reduce((acc,int)=>acc+int,0)
       labelSumInterest.textContent=`Rs.${interest}`
 }
+
+
 
 const createUsernames= function(accounts) {
 	accounts.forEach(function(acc){
@@ -203,6 +209,14 @@ btnClose.addEventListener('click',(event) =>{
     }
     inputCloseUsername.value = inputCloseUsername.value = '';
 
+})
+
+
+let sorted=false;
+btnSort.addEventListener('click',(event)=>{
+  event.preventDefault();
+  displayMovements(currentAccount.movements, !sorted);
+  sorted=!sorted;
 })
 
 

@@ -88,21 +88,29 @@ const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 /////////////////////////////////////////////////
 
 
-const displayMovements = function(movements, sort=false) {
+const displayMovements = function(acc, sort=false) {
 
     containerMovements.innerHTML='';
 
-    const movs=sort?movements.slice().sort((a,b)=>a-b):movements;
+    const movs=sort?acc.movements.slice().sort((a,b)=>a-b):acc.movements;
     // slice() is used to create copy of the movements array so that it'll not affect on the original array 
 
 
     movs.forEach(function(mov,i){
       const type=mov>0?'deposit':'withdrawal';
+      const date=new Date(acc.movementsDates[i]);
+
+      const day = `${date.getDate()}`.padStart(2, 0); //we need convert it into a string so that we can use padStart() with padStart we can add 0 if the month or date is single digit
+      const month = `${date.getMonth() + 1}`.padStart(2, 0);
+      const year = date.getFullYear();
+      const displayDate = `${day}/${month}/${year}`;
+
 
         const html = `<div class="movements__row">
           <div class="movements__type movements__type--${type}">${
           i + 1
         } ${type}</div>
+          <div class="movements__date">${displayDate}</div>
           <div class="movements__value">${mov.toFixed(2)}€</div>
         </div>`;
 
@@ -144,7 +152,7 @@ createUsernames(accounts);
 
 const updateUI=(acc)=>{
   //display all the data for the currentAccount
-  displayMovements(acc.movements);
+  displayMovements(acc);
 
   calcDisplayBalance(acc);
 
@@ -152,6 +160,14 @@ const updateUI=(acc)=>{
 }
 
 let currentAccount;
+
+// keep logged in  
+currentAccount = account1;
+updateUI(currentAccount);
+containerApp.style.opacity = 100;
+
+
+
 
 btnLogin.addEventListener('click', (event) =>{
   event.preventDefault(); // prevent default behaviour of submitting the form 
@@ -161,6 +177,18 @@ btnLogin.addEventListener('click', (event) =>{
 
   if(currentAccount?.pin===+(inputLoginPin.value)){
     labelWelcome.textContent=`Welcome back, ${currentAccount.owner.split(' ')[0]}`;
+
+
+    //create current date and time
+    const now = new Date();
+    const date = `${now.getDate()}`.padStart(2, 0); //we need convert it into a string so that we can use padStart() with padStart we can add 0 if the month or date is single digit
+    const month = `${now.getMonth() + 1}`.padStart(2, 0);
+    const year = now.getFullYear();
+    const hours = now.getHours()%12;   //%12 to convert into 12 hours format
+    const minutes = `${now.getMinutes()}`.padStart(2, '0');
+    labelDate.textContent = `${date}/${month}/${year}, ${hours}:${minutes}`;
+
+
 
     containerApp.style.opacity=100;
     
@@ -188,6 +216,10 @@ btnTransfer.addEventListener('click',(event)=>{
     //  doing the transfer
       currentAccount.movements.push(-amount);
       recieversAccount.movements.push(amount);
+      
+      //  add transfer date 
+      currentAccount.movementsDates.push(new Date().toISOString());
+      recieversAccount.movementsDates.push(new Date().toISOString());
 
       updateUI(currentAccount);
   }
@@ -202,6 +234,10 @@ btnLoan.addEventListener('click', function(event){
 
     if(loan>0 && currentAccount.movements.some(mov=>mov>=loan*0.1)){
       currentAccount.movements.push(loan);
+
+      // add date for loan
+      currentAccount.movementsDates.push(new Date().toISOString());
+
        updateUI(currentAccount);
 
     }
